@@ -96,5 +96,3 @@ QuantumAI-IntradayRiskDemo/
 - **Enhanced Visualization**: Integrate outputs with dashboards like Power BI or Tableau.
 
 ---
-
-This `README.md` provides clear guidance for your project setup and execution. Let me know if you'd like any further adjustments! 😊
