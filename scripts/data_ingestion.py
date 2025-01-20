@@ -1,5 +1,8 @@
 import blpapi
 import pandas as pd
+import numpy as np
+
+USE_MOCK_DATA = True  # Toggle between mock and live Bloomberg data
 
 def fetch_bloomberg_data(ticker, start_time, end_time):
     """
@@ -18,9 +21,9 @@ def fetch_bloomberg_data(ticker, start_time, end_time):
     
     # Start the Bloomberg session
     if not session.start():
-        raise ConnectionError("Failed to start Bloomberg session")
+        raise ConnectionError("Failed to start Bloomberg session. Ensure the Bloomberg Terminal is running.")
     if not session.openService("//blp/mktdata"):
-        raise ConnectionError("Failed to open Bloomberg Market Data service")
+        raise ConnectionError("Failed to open Bloomberg Market Data service.")
     
     # Access the Bloomberg Market Data service
     service = session.getService("//blp/mktdata")
@@ -57,6 +60,49 @@ def fetch_bloomberg_data(ticker, start_time, end_time):
     # Convert to a Pandas DataFrame
     return pd.DataFrame(data)
 
+def mock_bloomberg_data(ticker, start_time, end_time):
+    """
+    Generate mock intraday data for testing purposes.
+    
+    Parameters:
+        ticker (str): The ticker symbol (mocked, used for consistency).
+        start_time (str): Start time in the format "YYYY-MM-DDTHH:MM:SS".
+        end_time (str): End time in the format "YYYY-MM-DDTHH:MM:SS".
+    
+    Returns:
+        pd.DataFrame: DataFrame containing generated intraday data with columns:
+                      [time, open, high, low, close, volume].
+    """
+    timestamps = pd.date_range(start=start_time, end=end_time, freq='1min')
+    data = {
+        "time": timestamps,
+        "open": np.random.uniform(100, 200, len(timestamps)),
+        "high": np.random.uniform(150, 250, len(timestamps)),
+        "low": np.random.uniform(90, 150, len(timestamps)),
+        "close": np.random.uniform(100, 200, len(timestamps)),
+        "volume": np.random.randint(1000, 5000, len(timestamps)),
+    }
+    return pd.DataFrame(data)
+
+def get_data(ticker, start_time, end_time):
+    """
+    Fetch data using either live Bloomberg API or mock data based on the USE_MOCK_DATA flag.
+    
+    Parameters:
+        ticker (str): The Bloomberg ticker symbol.
+        start_time (str): Start time in the format "YYYY-MM-DDTHH:MM:SS".
+        end_time (str): End time in the format "YYYY-MM-DDTHH:MM:SS".
+    
+    Returns:
+        pd.DataFrame: DataFrame with market data.
+    """
+    if USE_MOCK_DATA:
+        print("Using mock data for demonstration purposes.")
+        return mock_bloomberg_data(ticker, start_time, end_time)
+    else:
+        print("Fetching live data from Bloomberg API...")
+        return fetch_bloomberg_data(ticker, start_time, end_time)
+
 # Example Usage
 if __name__ == "__main__":
     # Replace these with actual values
@@ -64,5 +110,6 @@ if __name__ == "__main__":
     start_time = "2024-12-29T09:30:00"
     end_time = "2024-12-29T16:00:00"
     
-    df = fetch_bloomberg_data(ticker, start_time, end_time)
+    # Fetch data based on the configuration
+    df = get_data(ticker, start_time, end_time)
     print(df.head())

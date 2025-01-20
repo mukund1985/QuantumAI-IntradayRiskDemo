@@ -1,4 +1,4 @@
-from data_ingestion import fetch_bloomberg_data
+from data_ingestion import get_data
 from lstm_prediction import train_lstm
 from quantum_optimization import quantum_optimization
 
@@ -15,9 +15,9 @@ def integrated_workflow(ticker, start_time, end_time, qubo):
     Returns:
         dict: Results from quantum optimization.
     """
-    print("Step 1: Fetching live market data...")
-    # Fetch real-time data using Bloomberg API
-    data = fetch_bloomberg_data(ticker, start_time, end_time)
+    print("Step 1: Fetching market data...")
+    # Fetch data using either live Bloomberg API or mock data
+    data = get_data(ticker, start_time, end_time)
     print(f"Fetched {len(data)} rows of data.\n")
     
     print("Step 2: Predicting volatility using AI...")

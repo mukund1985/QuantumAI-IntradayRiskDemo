@@ -4,7 +4,7 @@ This project demonstrates the use of Quantum AI for intraday risk modeling, comb
 
 ## Features
 
-1. **Live Data Ingestion**: Fetch real-time financial data using Bloomberg API for accurate market insights.
+1. **Live Data Ingestion**: Fetch real-time financial data using Bloomberg API for accurate market insights. Alternatively, use mock data for testing purposes.
 2. **Volatility Prediction**: Leverage LSTM models to forecast intraday market volatility.
 3. **Quantum Optimization**: Use quantum computing to optimize portfolio risk and sensitivities dynamically.
 4. **Real-Time Portfolio Adjustments**: Integrate live data and predictions to make real-time actionable decisions.
@@ -36,9 +36,15 @@ This project demonstrates the use of Quantum AI for intraday risk modeling, comb
      jupyter notebook
      ```
 
-4. **Bloomberg API Configuration**:
-   - Ensure you have access to the Bloomberg Terminal and the Bloomberg Python API (`blpapi`) installed.
-   - Open the terminal before running any API-related code.
+4. **Bloomberg API Configuration** (Optional):
+   - **Note for macOS Users**: Bloomberg Terminal software is not natively available for macOS. macOS users must access Bloomberg via [Bloomberg Anywhere](https://bba.bloomberg.net/) using a web browser. Alternatively, use a Windows system for full Bloomberg Terminal functionality.
+   - **Windows Users**: Install the Bloomberg Terminal software and ensure it is running and logged in before using the API.
+   - For both platforms, the Bloomberg Python API (`blpapi`) must be installed in the Python environment:
+     ```bash
+     pip install blpapi
+     ```
+   - Refer to the [Bloomberg Developer Portal](https://www.bloomberg.com/professional/support/api-library/) for setup instructions.
+   - Alternatively, the demo can use mock data by default to simplify execution.
 
 ---
 
@@ -50,10 +56,17 @@ QuantumAI-IntradayRiskDemo/
 ├── demo_notebook.ipynb       # Jupyter notebook for the full demo
 ├── requirements.txt          # Python dependencies
 ├── scripts/                  # Modular Python scripts
-│   ├── data_ingestion.py     # Fetch live Bloomberg data
+│   ├── data_ingestion.py     # Fetch live Bloomberg data or mock data
 │   ├── lstm_prediction.py    # AI-based volatility prediction
 │   ├── quantum_optimization.py # Quantum optimization functions
 │   └── integrated_solution.py # Integrated quantum + AI workflow
+├── tests/                    # Unit tests for scripts
+│   ├── test_data_ingestion.py
+│   ├── test_lstm_prediction.py
+│   ├── test_quantum_optimization.py
+│   └── test_integrated_solution.py
+├── data/                     # Pre-generated datasets for quick testing
+│   └── pre_generated_data.csv
 └── images/                   # Visualizations and diagrams
     ├── architecture_diagram.png  # Workflow architecture diagram
     └── example_visual.png       # Example output visualizations
@@ -65,7 +78,7 @@ QuantumAI-IntradayRiskDemo/
 
 ### **1. Data Ingestion**
 
-- Use the Bloomberg API to fetch real-time market data (e.g., stock prices, volatility).
+- Use the Bloomberg API to fetch real-time market data (e.g., stock prices, volatility). Alternatively, mock data can be used for demonstration purposes.
 
 ### **2. AI Model for Predictions**
 
