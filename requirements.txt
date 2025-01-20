@@ -1,0 +1,7 @@
+numpy
+pandas
+matplotlib
+keras
+tensorflow
+dwave-ocean-sdk
+blpapi
