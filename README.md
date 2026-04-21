@@ -1,111 +1,128 @@
 # QuantumAI-IntradayRiskDemo
 
-This project demonstrates the use of Quantum AI for intraday risk modeling, combining live data ingestion, AI predictions, and quantum optimization.
+![Python](https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![Domain](https://img.shields.io/badge/domain-quantitative%20finance-informational?style=flat-square)
 
-## Features
-
-1. **Live Data Ingestion**: Fetch real-time financial data using Bloomberg API for accurate market insights. Alternatively, use mock data for testing purposes.
-2. **Volatility Prediction**: Leverage LSTM models to forecast intraday market volatility.
-3. **Quantum Optimization**: Use quantum computing to optimize portfolio risk and sensitivities dynamically.
-4. **Real-Time Portfolio Adjustments**: Integrate live data and predictions to make real-time actionable decisions.
+> Intraday risk modelling combining LSTM-based volatility prediction with quantum-inspired portfolio optimisation. A demonstration of production-grade ML thinking applied to high-frequency financial risk.
 
 ---
 
-## Setup
+## Overview
 
-1. **Create a Python Environment**:
+Intraday risk management is a latency-constrained, explainability-constrained, and regulatory-constrained problem. A model that produces the right answer at the wrong time, or cannot explain why it moved a risk limit, is not production-ready.
 
-   - Use `conda` or `virtualenv` to create an isolated Python environment.
-   - Example:
-     ```bash
-     conda create -n quantum_ai_demo python=3.8
-     conda activate quantum_ai_demo
-     ```
+This repository demonstrates an end-to-end intraday risk pipeline:
 
-2. **Install Dependencies**:
+1. **Live data ingestion** — real-time market data via Bloomberg API (mock fallback included)
+2. **Volatility prediction** — LSTM model trained on historical price data
+3. **Quantum optimisation** — QUBO-formulated risk sensitivity adjustment via D-Wave annealer
+4. **Integrated workflow** — all three stages composing into actionable intraday portfolio decisions
 
-   - Install all required libraries using `requirements.txt`:
-     ```bash
-     pip install -r requirements.txt
-     ```
+The design reflects the constraints of quantitative finance ML: correctness guarantees, model risk management requirements, and the expectation that every output can be audited and explained.
 
-3. **Run the Demo Notebook**:
+---
 
-   - Launch Jupyter Notebook and execute the `demo_notebook.ipynb` step by step:
-     ```bash
-     jupyter notebook
-     ```
+## Architecture
 
-4. **Bloomberg API Configuration** (Optional):
-   - **Note for macOS Users**: Bloomberg Terminal software is not natively available for macOS. macOS users must access Bloomberg via [Bloomberg Anywhere](https://bba.bloomberg.net/) using a web browser. Alternatively, use a Windows system for full Bloomberg Terminal functionality.
-   - **Windows Users**: Install the Bloomberg Terminal software and ensure it is running and logged in before using the API.
-   - For both platforms, the Bloomberg Python API (`blpapi`) must be installed in the Python environment:
-     ```bash
-     pip install blpapi
-     ```
-   - Refer to the [Bloomberg Developer Portal](https://www.bloomberg.com/professional/support/api-library/) for setup instructions.
-   - Alternatively, the demo can use mock data by default to simplify execution.
+```
+data_ingestion.py          →  Bloomberg API / mock CSV
+       ↓
+lstm_prediction.py         →  LSTM volatility forecast (PyTorch)
+       ↓
+quantum_optimization.py    →  QUBO risk sensitivity solver (D-Wave / SimulatedAnnealing)
+       ↓
+integrated_solution.py     →  Combined pipeline: data → forecast → optimise → output
+       ↓
+demo_notebook.ipynb        →  End-to-end walkthrough with visualisations
+```
+
+---
+
+## Quick Start
+
+**Without Bloomberg API (mock data — works out of the box):**
+
+```bash
+git clone https://github.com/mukund1985/QuantumAI-IntradayRiskDemo.git
+cd QuantumAI-IntradayRiskDemo
+
+conda create -n quantum_ai python=3.8
+conda activate quantum_ai
+
+pip install -r requirements.txt
+jupyter notebook demo_notebook.ipynb
+```
+
+The notebook uses pre-generated data from `data/pre_generated_data.csv` by default. No Bloomberg credentials required.
+
+**With Bloomberg API (live data):**
+
+```bash
+pip install blpapi
+# Ensure Bloomberg Terminal is running and logged in (Windows)
+# Or use Bloomberg Anywhere (macOS)
+```
+
+Set `USE_LIVE_DATA = True` in the notebook or pass `--live` to the integrated script.
 
 ---
 
 ## Repository Structure
 
-```plaintext
+```
 QuantumAI-IntradayRiskDemo/
-├── README.md                 # Project documentation
-├── demo_notebook.ipynb       # Jupyter notebook for the full demo
-├── requirements.txt          # Python dependencies
-├── scripts/                  # Modular Python scripts
-│   ├── data_ingestion.py     # Fetch live Bloomberg data or mock data
-│   ├── lstm_prediction.py    # AI-based volatility prediction
-│   ├── quantum_optimization.py # Quantum optimization functions
-│   └── integrated_solution.py # Integrated quantum + AI workflow
-├── tests/                    # Unit tests for scripts
+├── demo_notebook.ipynb           # Full end-to-end walkthrough
+├── requirements.txt
+├── scripts/
+│   ├── data_ingestion.py         # Bloomberg API + mock data fallback
+│   ├── lstm_prediction.py        # LSTM volatility model (train + infer)
+│   ├── quantum_optimization.py   # QUBO formulation + D-Wave / SA solver
+│   └── integrated_solution.py    # Orchestrates full pipeline
+├── tests/
 │   ├── test_data_ingestion.py
 │   ├── test_lstm_prediction.py
 │   ├── test_quantum_optimization.py
 │   └── test_integrated_solution.py
-├── data/                     # Pre-generated datasets for quick testing
-│   └── pre_generated_data.csv
-└── images/                   # Visualizations and diagrams
-    ├── architecture_diagram.png  # Workflow architecture diagram
-    └── example_visual.png       # Example output visualizations
+├── data/
+│   └── pre_generated_data.csv    # Mock market data for offline runs
+└── images/
+    ├── architecture_diagram.png
+    └── example_visual.png
 ```
 
 ---
 
-## Workflow Overview
+## Pipeline Components
 
-### **1. Data Ingestion**
+### Data Ingestion
+Fetches OHLCV market data via Bloomberg `blpapi`. Falls back to `pre_generated_data.csv` for environments without Bloomberg access. Output: timestamped price and volume series normalised for model input.
 
-- Use the Bloomberg API to fetch real-time market data (e.g., stock prices, volatility). Alternatively, mock data can be used for demonstration purposes.
+### LSTM Volatility Prediction
+Sequence-to-one LSTM trained on rolling intraday windows. Predicts next-period volatility. Key design choice: the model outputs a calibrated confidence interval alongside the point forecast — a requirement in any production MRM (Model Risk Management) context.
 
-### **2. AI Model for Predictions**
+### Quantum Optimisation
+Formulates the portfolio risk sensitivity adjustment as a Quadratic Unconstrained Binary Optimisation (QUBO) problem. Solves using D-Wave’s quantum annealer when available, or simulated annealing as a classical fallback. Output: binary allocation adjustments that minimise projected risk exposure.
 
-- Train an LSTM model on historical price data to predict future volatility trends.
-
-### **3. Quantum Optimization**
-
-- Solve optimization problems, such as risk sensitivity adjustments, using a QUBO formulation and D-Wave’s quantum annealer.
-
-### **4. Integrated Workflow**
-
-- Combine live data, AI predictions, and quantum optimization to deliver actionable insights for intraday portfolio adjustments.
+### Integrated Workflow
+The `integrated_solution.py` script chains all three stages. Designed for intraday batch runs (e.g. every 15 minutes during market hours), with structured output logs for downstream consumption by risk reporting systems.
 
 ---
 
-## Outputs
+## Running Tests
 
-1. **Predicted Volatility**: AI-generated forecasts for intraday market trends.
-2. **Quantum Optimization Results**: Optimized portfolio adjustments for risk sensitivities.
-3. **Visualizations**: Graphs showing market trends, volatility predictions, and optimization results.
+```bash
+pytest tests/ -v
+```
+
+---
+
+## Context
+
+This project was built to demonstrate the application of quantum-classical hybrid optimisation to a real financial risk management problem. The constraints that shaped the design — latency, explainability, auditability, regulatory compliance — are the same constraints I work with building production ML systems at scale.
 
 ---
 
-## Future Enhancements
+## License
 
-- **Multi-Asset Support**: Extend the workflow to handle multi-asset portfolios.
-- **Regulatory Stress Testing**: Incorporate regulatory stress scenarios into the workflow.
-- **Enhanced Visualization**: Integrate outputs with dashboards like Power BI or Tableau.
-
----
+MIT
